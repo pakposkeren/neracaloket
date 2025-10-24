@@ -157,15 +157,23 @@ async function lanjutCetak() {
   let finalText = `TANGGAL: ${tanggal}\n\n${ascii}\n\nTERIMA KASIH\n\n`;
 
   let printer = document.getElementById("printerList").value;
-  if (!printer) return alert("⚠ Pilih printer terlebih dahulu!");
+  if (!printer) {
+    alert("⚠ Pilih printer terlebih dahulu!");
+    return;
+  }
 
   let cpj = new JSPM.ClientPrintJob();
   cpj.clientPrinter = new JSPM.InstalledPrinter(printer);
-  cpj.files.push(new JSPM.PrintFileText(finalText, JSPM.FileSourceType.InMemory, "pos.txt", 1));
+
+  // ✅ Ini yang jalan untuk Dot Matrix / Raw Printer
+  cpj.printerCommands = finalText;
+
+  // ✅ Kirim ke printer
   cpj.sendToClient();
 
   tutupModal();
 }
+
 </script>
 
 </body>
