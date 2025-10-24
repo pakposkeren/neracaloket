@@ -118,14 +118,34 @@ function tableToAscii(table) {
     let i = c.querySelector("input");
     return i ? (i.value || "").trim() : c.innerText.trim();
   }));
+
+  // Hitung lebar maksimal setiap kolom
   let colW = [];
-  data.forEach(row => row.forEach((c,i) => colW[i] = Math.max(colW[i] || 0, c.length)));
+  data.forEach(row => row.forEach((c,i) => {
+    colW[i] = Math.max(colW[i] || 0, c.length);
+  }));
+
+  // Buat garis atas/bawah
   let line = "+" + colW.map(w => "-".repeat(w+2)).join("+") + "+";
   let out = [line];
-  data.forEach((row,i) => {
-    out.push("| " + row.map((c,j)=> c.padEnd(colW[j])).join(" | ") + " |");
-    if(i === 0 || i === data.length-1) out.push(line);
+
+  data.forEach((row, rowIndex) => {
+    let formattedRow = row.map((cell, colIndex) => {
+      // Kolom 0 dan 1 = teks ➜ rata kiri
+      // Kolom 2 dan 3 = angka ➜ rata kanan
+      if (colIndex >= 2) {
+        return cell.padStart(colW[colIndex]); // rata kanan
+      } else {
+        return cell.padEnd(colW[colIndex]);   // rata kiri
+      }
+    }).join(" | ");
+
+    out.push("| " + formattedRow + " |");
+
+    // Garis setelah header dan baris terakhir
+    if (rowIndex === 0 || rowIndex === data.length - 1) out.push(line);
   });
+
   return out.join("\n");
 }
 
@@ -178,3 +198,4 @@ async function lanjutCetak() {
 
 </body>
 </html>
+
