@@ -20,7 +20,7 @@
 <label><strong>Tanggal:</strong></label>
 <input type="date" id="tanggal1">
 
-<table id="tabel1">
+<!--<table id="tabel1">
   <thead>
     <tr>
       <th>NO</th><th>TRANSAKSI</th><th>TRX</th><th>JUMLAH</th>
@@ -40,6 +40,42 @@
     <tr><td>11</td><td>PANJAR TAMBAHAN</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
     <tr>
       <td><strong>12</strong></td><td><strong>TOTAL</strong></td>
+      <td><input id="totalTrx1" readonly></td>
+      <td><input id="totalJumlah1" readonly></td>
+    </tr>
+  </tbody>
+</table>-->
+
+<table id="tabel1">
+  <thead>
+    <tr>
+      <th>NO</th><th>JENIS</th><th>TRX</th><th>JUMLAH</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr><td colspan="4"><strong>BM</strong></td></tr>
+    <tr><td>1</td><td>PANJAR DITAHAN</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
+    
+	
+    <tr><td>2</td><td>MILEAPP</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
+    <tr><td>3</td><td>RS-3 (KIRIM)</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
+    <tr><td>4</td><td>BEA RS-3</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
+    <tr><td>5</td><td>POSPAY</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
+    <tr><td>6</td><td>METERAI</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
+    <tr><td>7</td><td>O-TOKO</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
+	
+	<tr><td colspan="4"><strong>O-LOKET</strong></td></tr>
+	<tr><td>8</td><td>PANJAR KERJA</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
+    <tr><td>9</td><td>MILE APP</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
+    <tr><td>10</td><td>RS-3 (KIRIM)</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
+    <tr><td>11</td><td>BEA RS-3</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
+    <tr><td>12</td><td>POSPAY</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
+    <tr><td>13</td><td>METERAI</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
+    <tr><td>14</td><td>O-TOKO</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
+  
+	<tr><td colspan="4"></td></tr>
+    <tr>
+      <td colspan="2"><strong>TOTAL</strong></td>
       <td><input id="totalTrx1" readonly></td>
       <td><input id="totalJumlah1" readonly></td>
     </tr>
@@ -80,6 +116,7 @@ window.onload = function () {
   };
 };
 
+
 // ✅ Cek status WebSocket
 function jspmWSStatus() {
   return JSPM.JSPrintManager.websocket_status === JSPM.WSStatus.Open;
@@ -118,7 +155,7 @@ document.querySelectorAll(".trx,.jumlah").forEach(inp => {
   });
 });
 
-// ==================== ASCII =====================
+// ==================== ASCII (rata kiri/kanan) =====================
 function tableToAscii(table) {
   const rows = [...table.querySelectorAll("tr")];
   let data = rows.map(r => [...r.children].map(c => {
@@ -205,5 +242,3 @@ async function lanjutCetak() {
 
 </body>
 </html>
-
-
