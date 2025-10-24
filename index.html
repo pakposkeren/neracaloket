@@ -61,12 +61,19 @@
 JSPM.JSPrintManager.auto_reconnect = true;
 
 window.onload = function () {
+  // Autostart JSPM
   JSPM.JSPrintManager.start();
 
-  // Tunggu sampai status WebSocket berubah (Open / Closed / Blocked)
+  // ✅ Set tanggal default = hari ini
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  document.getElementById("tanggal1").value = `${yyyy}-${mm}-${dd}`;
+
+  // Tunggu sampai JSPM siap
   JSPM.JSPrintManager.onStatusChanged = function () {
     if (jspmWSStatus()) {
-      // ✅ Baru di sini askUserPermission bisa dimatikan
       JSPM.JSPrintManager.askUserPermission = false;
       console.log("✅ JSPM aktif tanpa popup izin.");
     }
@@ -198,4 +205,5 @@ async function lanjutCetak() {
 
 </body>
 </html>
+
 
