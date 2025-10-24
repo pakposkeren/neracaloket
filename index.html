@@ -55,15 +55,18 @@
   <tbody>
   <tr><td colspan="4"><strong>BM</strong></td></tr>
     <tr><td>1</td><td>PANJAR DITAHAN</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
-    
-	
     <tr><td>2</td><td>MILEAPP</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
     <tr><td>3</td><td>RS-3 (KIRIM)</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
     <tr><td>4</td><td>BEA RS-3</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
     <tr><td>5</td><td>POSPAY</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
     <tr><td>6</td><td>METERAI</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
     <tr><td>7</td><td>O-TOKO</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
-	
+    <tr><td>7</td><td>HUTIP DINKOP</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
+	<tr>
+      <td colspan="2"><strong>TOTAL BM</strong></td>
+      <td><input id="totalTrxBM" readonly></td>
+      <td><input id="totalJumlahBM" readonly></td>
+    </tr>
 	<tr><td colspan="4"><strong>O-LOKET</strong></td></tr>
 	<tr><td>8</td><td>PANJAR KERJA</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
     <tr><td>9</td><td>MILE APP</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
@@ -72,7 +75,12 @@
     <tr><td>12</td><td>POSPAY</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
     <tr><td>13</td><td>METERAI</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
     <tr><td>14</td><td>O-TOKO</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
-  
+    <tr><td>14</td><td>HUTIP DINKOP</td><td><input class="trx"></td><td><input class="jumlah"></td></tr>
+  <tr>
+      <td colspan="2"><strong>TOTAL OL</strong></td>
+      <td><input id="totalTrxOL" readonly></td>
+      <td><input id="totalJumlahOL" readonly></td>
+    </tr>
 	<tr><td colspan="4"></td></tr>
     <tr>
       <td colspan="2"><strong>TOTAL</strong></td>
@@ -97,25 +105,20 @@
 JSPM.JSPrintManager.auto_reconnect = true;
 
 window.onload = function () {
-  // Autostart JSPM
   JSPM.JSPrintManager.start();
 
   // ✅ Set tanggal default = hari ini
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
+  const t = new Date();
+  const yyyy = t.getFullYear();
+  const mm = String(t.getMonth() + 1).padStart(2, '0');
+  const dd = String(t.getDate()).padStart(2, '0');
   document.getElementById("tanggal1").value = `${yyyy}-${mm}-${dd}`;
 
-  // Tunggu sampai JSPM siap
+  // ✅ Hilangkan popup izin
   JSPM.JSPrintManager.onStatusChanged = function () {
-    if (jspmWSStatus()) {
-      JSPM.JSPrintManager.askUserPermission = false;
-      console.log("✅ JSPM aktif tanpa popup izin.");
-    }
+    if (jspmWSStatus()) JSPM.JSPrintManager.askUserPermission = false;
   };
 };
-
 
 // ✅ Cek status WebSocket
 function jspmWSStatus() {
@@ -124,7 +127,7 @@ function jspmWSStatus() {
 
 // ==================== FORMAT ANGKA =====================
 function formatRibuan(angka) {
-  if (angka === "") return "";
+  if (!angka) return "";
   return Number(angka).toLocaleString("id-ID");
 }
 function formatTanggalIndo(iso) {
@@ -134,20 +137,38 @@ function formatTanggalIndo(iso) {
   return `${d} ${bln[m-1]} ${y}`;
 }
 
-// ==================== HITUNG TOTAL =====================
+// ==================== HITUNG TOTAL (BM, OL, Total) =====================
 function updateTotal() {
-  let totalTrx = 0, totalJumlah = 0;
-  document.querySelectorAll(".trx").forEach(inp => {
-    let v = inp.value.replace(/\D/g,"");
-    if(v) totalTrx += Number(v);
+  let totalBMtrx = 0, totalBMjumlah = 0;
+  let totalOLtrx = 0, totalOLjumlah = 0;
+  let hitungOL = false;
+
+  document.querySelectorAll("#tabel1 tbody tr").forEach(row => {
+    const cells = row.querySelectorAll("td");
+    if (cells.length === 1 && cells[0].innerText.includes("O-LOKET")) hitungOL = true;
+
+    const trx = row.querySelector("input.trx");
+    const jumlah = row.querySelector("input.jumlah");
+    if (trx && jumlah) {
+      const v1 = Number(trx.value.replace(/\D/g,'')) || 0;
+      const v2 = Number(jumlah.value.replace(/\D/g,'')) || 0;
+      if (!hitungOL) { totalBMtrx += v1; totalBMjumlah += v2; }
+      else { totalOLtrx += v1; totalOLjumlah += v2; }
+    }
   });
-  document.querySelectorAll(".jumlah").forEach(inp => {
-    let v = inp.value.replace(/\D/g,"");
-    if(v) totalJumlah += Number(v);
-  });
-  totalTrx1.value = formatRibuan(totalTrx);
-  totalJumlah1.value = formatRibuan(totalJumlah);
+
+  // Set nilai ke input total bagian
+  totalTrxBM.value = formatRibuan(totalBMtrx);
+  totalJumlahBM.value = formatRibuan(totalBMjumlah);
+  totalTrxOL.value = formatRibuan(totalOLtrx);
+  totalJumlahOL.value = formatRibuan(totalOLjumlah);
+
+  // Hitung total akhir
+  totalTrx1.value = formatRibuan(totalBMtrx + totalOLtrx);
+  totalJumlah1.value = formatRibuan(totalBMjumlah + totalOLjumlah);
 }
+
+// Auto format input
 document.querySelectorAll(".trx,.jumlah").forEach(inp => {
   inp.addEventListener("input", () => {
     inp.value = formatRibuan(inp.value.replace(/\D/g,""));
@@ -155,7 +176,7 @@ document.querySelectorAll(".trx,.jumlah").forEach(inp => {
   });
 });
 
-// ==================== ASCII (rata kiri/kanan) =====================
+// ==================== ASCII (rapi, angka kanan) =====================
 function tableToAscii(table) {
   const rows = [...table.querySelectorAll("tr")];
   let data = rows.map(r => [...r.children].map(c => {
@@ -163,30 +184,20 @@ function tableToAscii(table) {
     return i ? (i.value || "").trim() : c.innerText.trim();
   }));
 
-  // Hitung lebar maksimal setiap kolom
   let colW = [];
   data.forEach(row => row.forEach((c,i) => {
     colW[i] = Math.max(colW[i] || 0, c.length);
   }));
 
-  // Buat garis atas/bawah
   let line = "+" + colW.map(w => "-".repeat(w+2)).join("+") + "+";
   let out = [line];
 
   data.forEach((row, rowIndex) => {
     let formattedRow = row.map((cell, colIndex) => {
-      // Kolom 0 dan 1 = teks ➜ rata kiri
-      // Kolom 2 dan 3 = angka ➜ rata kanan
-      if (colIndex >= 2) {
-        return cell.padStart(colW[colIndex]); // rata kanan
-      } else {
-        return cell.padEnd(colW[colIndex]);   // rata kiri
-      }
+      if (colIndex >= 2) return cell.padStart(colW[colIndex]); // angka kanan
+      else return cell.padEnd(colW[colIndex]);                 // teks kiri
     }).join(" | ");
-
     out.push("| " + formattedRow + " |");
-
-    // Garis setelah header dan baris terakhir
     if (rowIndex === 0 || rowIndex === data.length - 1) out.push(line);
   });
 
@@ -195,10 +206,8 @@ function tableToAscii(table) {
 
 // ==================== MODAL PRINTER =====================
 async function pilihPrinter() {
-  if (!jspmWSStatus()) {
-    alert("❌ JSPrintManager belum berjalan!\nJalankan aplikasinya (ikon biru di tray).");
-    return;
-  }
+  if (!jspmWSStatus()) return alert("❌ JSPrintManager belum berjalan!");
+
   let printers = await JSPM.JSPrintManager.getPrinters();
   let select = document.getElementById("printerList");
   select.innerHTML = "";
@@ -220,25 +229,18 @@ async function lanjutCetak() {
   let tanggal = formatTanggalIndo(document.getElementById("tanggal1").value);
   let finalText = `TANGGAL: ${tanggal}\n\n${ascii}\n\nTERIMA KASIH\n\n`;
 
-  let printer = document.getElementById("printerList").value;
-  if (!printer) {
-    alert("⚠ Pilih printer terlebih dahulu!");
-    return;
-  }
+  const printer = document.getElementById("printerList").value;
+  if (!printer) return alert("⚠ Pilih printer dulu!");
 
   let cpj = new JSPM.ClientPrintJob();
   cpj.clientPrinter = new JSPM.InstalledPrinter(printer);
-
-  // ✅ Ini yang jalan untuk Dot Matrix / Raw Printer
-  cpj.printerCommands = finalText;
-
-  // ✅ Kirim ke printer
+  cpj.printerCommands = finalText; // ✅ Raw text ke Dot Matrix
   cpj.sendToClient();
 
   tutupModal();
 }
-
 </script>
+
 
 </body>
 </html>
